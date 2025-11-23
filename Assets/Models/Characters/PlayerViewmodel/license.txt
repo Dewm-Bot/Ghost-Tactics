@@ -1,0 +1,11 @@
+Model Information:
+* title:	FPS ARM IK RIGGED
+* source:	https://sketchfab.com/3d-models/fps-arm-ik-rigged-7b2bb0fae3554e99a50a3e8c4a9bbabb
+* author:	socklessnight (https://sketchfab.com/socklessnight)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "FPS ARM IK RIGGED" (https://sketchfab.com/3d-models/fps-arm-ik-rigged-7b2bb0fae3554e99a50a3e8c4a9bbabb) by socklessnight (https://sketchfab.com/socklessnight) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

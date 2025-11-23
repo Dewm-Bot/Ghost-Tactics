@@ -1,9 +1,9 @@
 {
   "dependencies": {
-    "com.unity.ai.navigation": "2.0.5",
+    "com.unity.ai.navigation": "2.0.9",
     "com.unity.feature.characters-animation": "1.0.0",
     "com.unity.feature.development": "1.0.2",
-    "com.unity.inputsystem": "1.11.2",
+    "com.unity.inputsystem": "1.14.2",
     "com.unity.multiplayer.center": "1.0.0",
     "com.unity.toolchain.linux-x86_64": "2.0.10",
     "com.unity.ugui": "2.0.0",

@@ -1,0 +1,76 @@
+fileFormatVersion: 2
+guid: f49bce5c2dd2bfbcc9b699f1b144c671
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 804e1ce4c496647cfa3f1a1134187c71, type: 3}
+  _removeEmptyRootObjects: 1
+  _scaleFactor: 1
+  _deduplicateResources: 0
+  _maximumLod: 300
+  _readWriteEnabled: 1
+  _generateColliders: 0
+  _swapUvs: 0
+  _generateLightmapUVs: 0
+  _importBlendShapeNames: 1
+  _blendShapeFrameWeight:
+    _option: 0
+    _multiplier: 1
+  _importNormals: 0
+  _importTangents: 0
+  _importCamera: 2
+  _importAnimations: 2
+  _mecanimHumanoidFlip: 0
+  _addAnimatorComponent: 0
+  _animationLoopTime: 1
+  _animationLoopPose: 0
+  _importMaterials: 1
+  _enableGpuInstancing: 0
+  _texturesReadWriteEnabled: 1
+  _generateMipMaps: 1
+  _useSceneNameIdentifier: 1
+  _textureCompression: -50
+  _gltfAsset: '<b>Generator: </b>Sketchfab-12.68.0
+
+    <b>Version: </b>2.0
+
+
+    <b>Extras:
+    </b>
+
+    "author": "socklessnight (https://sketchfab.com/socklessnight)"
+
+    "license":
+    "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)"
+
+    "source": "https://sketchfab.com/3d-models/fps-arm-ik-rigged-7b2bb0fae3554e99a50a3e8c4a9bbabb"
+
+    "title":
+    "FPS ARM IK RIGGED"
+
+'
+  optimizeGameObjects: 0
+  materials:
+  - {instanceID: 0}
+  textures:
+  - {fileID: 2800000, guid: 9ad9046e44cdb1f24bcfad88a8a9c649, type: 3}
+  - {fileID: 2800000, guid: b70f326770bfb278a8e8d48d387e5082, type: 3}
+  hasSceneData: 1
+  hasAnimationData: 0
+  hasMaterialData: 1
+  hasTextureData: 1
+  animations: []
+  _extensions: []
+  _textures:
+  - texture: {fileID: 2800000, guid: 9ad9046e44cdb1f24bcfad88a8a9c649, type: 3}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: b70f326770bfb278a8e8d48d387e5082, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 1
+  _mainAssetIdentifier: scenes/Sketchfab_Scene
+  _importPlugins: []

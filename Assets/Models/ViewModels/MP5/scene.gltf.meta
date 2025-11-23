@@ -1,0 +1,97 @@
+fileFormatVersion: 2
+guid: d1e62e4e986331646bd762c42ad265ac
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 804e1ce4c496647cfa3f1a1134187c71, type: 3}
+  _removeEmptyRootObjects: 1
+  _scaleFactor: 1
+  _deduplicateResources: 0
+  _maximumLod: 300
+  _readWriteEnabled: 1
+  _generateColliders: 0
+  _swapUvs: 0
+  _generateLightmapUVs: 0
+  _importBlendShapeNames: 1
+  _blendShapeFrameWeight:
+    _option: 0
+    _multiplier: 1
+  _importNormals: 0
+  _importTangents: 0
+  _importCamera: 2
+  _importAnimations: 2
+  _mecanimHumanoidFlip: 0
+  _addAnimatorComponent: 0
+  _animationLoopTime: 1
+  _animationLoopPose: 0
+  _importMaterials: 1
+  _enableGpuInstancing: 0
+  _texturesReadWriteEnabled: 1
+  _generateMipMaps: 1
+  _useSceneNameIdentifier: 1
+  _textureCompression: -50
+  _gltfAsset: '<b>Generator: </b>Sketchfab-16.53.0
+
+    <b>Version: </b>2.0
+
+
+    <b>Extras:
+    </b>
+
+    "author": "Rotuma (https://sketchfab.com/Rotuma)"
+
+    "license": "CC-BY-4.0
+    (http://creativecommons.org/licenses/by/4.0/)"
+
+    "source": "https://sketchfab.com/3d-models/mp5-submachine-gun-a73b61932a0e4eecb5db5c63c158aa24"
+
+    "title":
+    "MP5 Submachine Gun"
+
+'
+  optimizeGameObjects: 0
+  materials:
+  - {instanceID: 0}
+  - {instanceID: 0}
+  textures:
+  - {fileID: 2800000, guid: 5d106f036d2303eaa9f66830d6d977a2, type: 3}
+  - {fileID: 2800000, guid: 8e2a7d7f0f051254e9f23d5982e47108, type: 3}
+  - {fileID: 2800000, guid: f59cf0aaa48f6858f9dac45bee2d6432, type: 3}
+  - {fileID: 2800000, guid: 02c7d9ac35314758cb175d980e80983b, type: 3}
+  - {fileID: 2800000, guid: ca16f22452d382ff0bdb59db749cab48, type: 3}
+  - {fileID: 2800000, guid: d7af1adb9f93ed30f8872b31f4b70114, type: 3}
+  - {fileID: 2800000, guid: 20310d3f07de331099b95c18da24dc34, type: 3}
+  hasSceneData: 1
+  hasAnimationData: 0
+  hasMaterialData: 1
+  hasTextureData: 1
+  animations: []
+  _extensions: []
+  _textures:
+  - texture: {fileID: 2800000, guid: 5d106f036d2303eaa9f66830d6d977a2, type: 3}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: 8e2a7d7f0f051254e9f23d5982e47108, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: f59cf0aaa48f6858f9dac45bee2d6432, type: 3}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: 02c7d9ac35314758cb175d980e80983b, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 1
+  - texture: {fileID: 2800000, guid: ca16f22452d382ff0bdb59db749cab48, type: 3}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: d7af1adb9f93ed30f8872b31f4b70114, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: 20310d3f07de331099b95c18da24dc34, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 1
+  _mainAssetIdentifier: scenes/Sketchfab_Scene
+  _importPlugins: []
