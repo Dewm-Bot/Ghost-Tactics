@@ -5,12 +5,15 @@ using System.Collections;
 
 public class PlayerController2 : MonoBehaviour
 {
-    [Header("Character Controller")] private CharacterController _controller;
-
+    [Header("Character Controller")] 
     public GhostTactics _inputs;
+    private CharacterController _controller;
 
-    [Header("Movement")] private Vector2 _move;
+
+
+    [Header("Movement")] 
     [SerializeField] private float _speed = 8.0f;
+    private Vector2 _move;
     private float _speedOld;
     [SerializeField] private float _acceleration = 1.0f;
     [SerializeField] private float _deceleration = 1.0f;
@@ -26,27 +29,29 @@ public class PlayerController2 : MonoBehaviour
     private Vector3 _originalCenter;
 
 
-    [Header("Mouse Settings")] private Vector2 _mouse;
-    private Camera _camera;
+    [Header("Mouse Settings")] 
     [SerializeField] public float mouseSensX = 30f;
     [SerializeField] public float mouseSensY = 30f;
+    private Vector2 _mouse;
+    private Camera _camera;
     private float _xRotation = 0f;
     private float _yRotation = 0f;
     private Vector2 _cameraOffset = new Vector2(0f, 0f);
 
 
 
-    [Header("Lean Settings")] private Vector2 _lean;
+    [Header("Lean Settings")]
     [SerializeField] private float _leanAngle = 15f;
     [SerializeField] private float _leanDistance = 0.5f;
     [SerializeField] private float _weaponShiftDistance = 0.7f;
     [SerializeField] private float _leanSpeed = 5f;
+    [SerializeField] private GameObject _currentGun = null;
+    private Vector2 _lean;
     private Vector3 _targetCameraPosition;
     private Quaternion _targetCameraRotation;
     private Vector3 _targetGunPosition;
-    [SerializeField] private GameObject _currentGun = null;
 
-    [Header("Gun Movement Settings")] private float _initialGunYaw = 0f;
+    [Header("Gun Movement Settings")] 
     [SerializeField] private float _gunYawModifier = 5f;
     [SerializeField] private float _yawClampMin = 30f;
     [SerializeField] private float _yawClampMax = 30f;
@@ -54,8 +59,33 @@ public class PlayerController2 : MonoBehaviour
     [SerializeField] private float _slerpSpeedX = 5f;
     [SerializeField] private float _slerpSpeedY = 5f;
     [SerializeField] private float _returnSpeed = 5f;
-    [SerializeField] private float _downShiftScaler = 1.0f;
-    [SerializeField] private float _upShiftScaler = 1.0f;
+    private float _initialGunYaw = 0f;
+    
+    [Header("Hip Fire Gun Positioning")]
+    [SerializeField] private float _upShiftScaler = 1.0f;           // How much gun moves up when looking up
+    [SerializeField] private float _upPositionScaler = 0.3f;        // How much gun moves up positionally when looking up
+    [SerializeField] private float _downShiftScaler = 1.0f;         // How much gun moves back when looking down
+    [SerializeField] private float _downPositionScaler = 0.5f;      // How much gun moves down positionally when looking down
+    
+    [Header("ADS Gun Movement")]
+    [SerializeField] private float _adsLookUpBackwardPush = 1.0f;     // How far back to push gun when looking up in ADS
+    [SerializeField] private float _adsLookUpDownwardPush = 1f;     // How far down to push gun when looking up in ADS
+    [SerializeField] private float _adsLookDownDownwardPush = 0.2f;   // How far down to push gun when looking down in ADS
+    [SerializeField] private float _adsLookDownForwardPush = 0.1f;    // How far forward to push gun when looking down in ADS
+    
+    [Header("Weapon System")]
+    [SerializeField] private WeaponMount weaponMount;
+    [SerializeField] private WeaponBase startingWeapon;
+    private WeaponBase _currentWeapon;
+    private bool isAiming = false;
+
+    [Header("Debug Mode")]
+    [SerializeField] private bool debugMode = false;
+    private bool allInputFrozen = false;
+    [SerializeField] private bool showCameraCenterGizmos = false;
+    [SerializeField] private float gizmoSize = 0.02f;
+    [SerializeField] private Color centerGizmoColor = Color.red;
+    [SerializeField] public bool previewADSInDebug = false; // Allow ADS preview in debug mode
 
     //[Header("Projectile Stuff")]
     public bool isFiring = false;
@@ -99,28 +129,49 @@ public class PlayerController2 : MonoBehaviour
         //Weapon Bindings
         _inputs.Player.Fire.performed += ctx => isFiring = true;
         _inputs.Player.Fire.canceled += ctx => isFiring = false;
+        _inputs.Player.AimDownSights.performed += ctx => ToggleAim(true);
+        _inputs.Player.AimDownSights.canceled += ctx => ToggleAim(false);
+
 
         _yawClampMin = Mathf.Abs(_yawClampMin);
     }
 
-    void Update()
+    private void Update()
     {
+        // Handle debug mode toggle (P key should work even when frozen)
+        HandleDebugInput();
+        
+        // Apply gun positioning even when input is frozen for debugging
+        ApplyGunPositioning();
+        
+        // Only process other input if not frozen
+        if (allInputFrozen) return;
         HandleMouseInput();
         MovementHandler();
         HandleLeanInput();
+            
+        // Weapon firing
+        if (isFiring && _currentWeapon != null)
+        {
+            _currentWeapon.Fire();
+        }
     }
-
+    
     private void FixedUpdate()
     {
         PhysicsHandler();
     }
 
 
-    void Start()
+    private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         _speedOld = _speed;
+        if (startingWeapon != null)
+        {
+            EquipWeapon(startingWeapon);
+        }
     }
     
     private void OnDisable()
@@ -145,26 +196,66 @@ public class PlayerController2 : MonoBehaviour
 
         _controller.transform.rotation = Quaternion.Euler(0f, _yRotation, 0f);
 
+        ApplyGunPositioning();
+
+        AdjustGunRotation(cameraRotation);
+    }
+
+    private void ApplyGunPositioning()
+    {
         Vector3 targetGunPosition = new Vector3(_currentGun.transform.localPosition.x,
             ((_camera.transform.localPosition.y - 0.5f) - _currentGun.transform.localPosition.y),
             _camera.transform.localPosition.z);
 
-        if (_xRotation < 10f)
+        if (!isAiming)
         {
-            float upwardShift = Mathf.Abs(_xRotation / 90f) * _upShiftScaler;
-            targetGunPosition += Vector3.up * upwardShift;
+            switch (_xRotation)
+            {
+                // Regular hip fire movement with proper up/down positioning using public variables
+                // Looking up
+                case > 0f:
+                {
+                    float upwardAmount = (_xRotation / 90f);
+                    targetGunPosition += Vector3.up * (upwardAmount * _upShiftScaler);        // Move gun up
+                    targetGunPosition += Vector3.up * (upwardAmount * _upPositionScaler);     // Additional upward positioning
+                    break;
+                }
+                // Looking down  
+                case < 0f:
+                {
+                    float downwardAmount = (Mathf.Abs(_xRotation) / 90f);
+                    targetGunPosition -= Vector3.forward * (downwardAmount * _downShiftScaler);   // Move gun back
+                    targetGunPosition -= Vector3.up * (downwardAmount * _downPositionScaler);     // Move gun down
+                    break;
+                }
+            }
         }
-
-        if (_xRotation > -10f)
+        else
         {
-            float downwardShift = Mathf.Abs(_xRotation / 90f) * _downShiftScaler;
-            targetGunPosition -= Vector3.forward * downwardShift;
+            switch (_xRotation)
+            {
+                // ADS-specific movement to maintain sight picture
+                // Looking up
+                case > 0f:
+                {
+                    float lookUpAmount = _xRotation / 90f; // 0 to 1
+                    targetGunPosition -= Vector3.forward * (lookUpAmount * _adsLookUpBackwardPush);
+                    targetGunPosition -= Vector3.up * (lookUpAmount * _adsLookUpDownwardPush);
+                    break;
+                }
+                // Looking down
+                case < 0f:
+                {
+                    float lookDownAmount = Mathf.Abs(_xRotation) / 90f; // 0 to 1
+                    targetGunPosition -= Vector3.up * (lookDownAmount * _adsLookDownDownwardPush);
+                    targetGunPosition += Vector3.forward * (lookDownAmount * _adsLookDownForwardPush);
+                    break;
+                }
+            }
         }
 
         _currentGun.transform.localPosition = Vector3.Slerp(_currentGun.transform.localPosition, targetGunPosition,
             _leanSpeed * Time.deltaTime);
-
-        AdjustGunRotation(cameraRotation);
     }
 
     private void AdjustGunRotation(Quaternion cameraRotation)
@@ -277,7 +368,7 @@ public class PlayerController2 : MonoBehaviour
         _inputs.Enable();
     }
 
-    void OnApplicationFocus(bool hasFocus)
+    private void OnApplicationFocus(bool hasFocus)
     {
         if (hasFocus)
         {
@@ -315,11 +406,106 @@ public class PlayerController2 : MonoBehaviour
             _controller.height = _crouchHeight;
             _controller.center = _crouchVector;
         }
-    
-        public void SudoStand()
+
+        private void SudoStand()
         {
             Debug.Log("Standing!");
             _controller.height = _originalHeight;
             _controller.center = _originalCenter;
         }
+        
+        private void ToggleAim(bool aiming)
+        {
+            // Allow ADS preview in debug mode if previewADSInDebug is enabled
+            if (allInputFrozen && !previewADSInDebug)
+            {
+                return; // Block ADS when input is frozen unless preview is enabled
+            }
+            
+            isAiming = aiming;
+    
+            if (weaponMount != null)
+            {
+                weaponMount.ToggleAiming(aiming);
+            }
+
+            // Optional: Adjust camera FOV or sensitivity when aiming
+            if (isAiming)
+            {
+                _camera.fieldOfView = 40f; // Zoomed in FOV
+                // Store original sensitivity values if you want to restore them later
+            }
+            else
+            {
+                _camera.fieldOfView = 60f; // Normal FOV
+                // Restore original sensitivity values if needed
+            }
+        }
+
+        private void EquipWeapon(WeaponBase newWeapon)
+        {
+            if (_currentWeapon != null)
+            {
+                // Properly unequip the current weapon
+                if (weaponMount != null)
+                {
+                    weaponMount.MountWeapon(null);
+                }
+                _currentWeapon = null;
+            }
+
+            // Use the existing weapon instance instead of instantiating
+            _currentWeapon = newWeapon;
+            if (weaponMount != null)
+            {
+                weaponMount.MountWeapon(_currentWeapon);
+            }
+            else
+            {
+                Debug.LogError("WeaponMount reference is missing!");
+            }
+        }
+
+        private void HandleDebugInput()
+    {
+        // Toggle weapon input freeze with P key
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            allInputFrozen = !allInputFrozen;
+            Debug.Log($"All input {(allInputFrozen ? "FROZEN" : "UNFROZEN")}");
+            
+            // Also toggle gizmos visibility
+            showCameraCenterGizmos = allInputFrozen;
+
+            // Removed time freezing - debug mode no longer affects Time.timeScale
+        }
+    }
+
+    // Draw debug gizmos for camera center
+    private void OnDrawGizmos()
+    {
+        if (!showCameraCenterGizmos || _camera == null) return;
+        
+        Gizmos.color = centerGizmoColor;
+        
+        // Draw crosshair at camera center
+        Vector3 cameraCenter = _camera.transform.position + _camera.transform.forward * 2f;
+        
+        // Horizontal line
+        Vector3 left = cameraCenter - _camera.transform.right * gizmoSize;
+        Vector3 right = cameraCenter + _camera.transform.right * gizmoSize;
+        Gizmos.DrawLine(left, right);
+        
+        // Vertical line
+        Vector3 up = cameraCenter + _camera.transform.up * gizmoSize;
+        Vector3 down = cameraCenter - _camera.transform.up * gizmoSize;
+        Gizmos.DrawLine(up, down);
+        
+        // Center dot
+        Gizmos.DrawSphere(cameraCenter, gizmoSize * 0.1f);
+        
+        // Draw ray from camera forward
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawRay(_camera.transform.position, _camera.transform.forward * 5f);
+    }
 }
