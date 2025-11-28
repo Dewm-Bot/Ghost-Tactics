@@ -216,7 +216,7 @@ public class PlayerController2 : MonoBehaviour
                 case > 0f:
                 {
                     float upwardAmount = (_xRotation / 90f);
-                    targetGunPosition += Vector3.up * (upwardAmount * _upShiftScaler);        // Move gun up
+                    targetGunPosition += Vector3.forward * (upwardAmount * _upShiftScaler);        // Move gun up
                     targetGunPosition += Vector3.up * (upwardAmount * _upPositionScaler);     // Additional upward positioning
                     break;
                 }
