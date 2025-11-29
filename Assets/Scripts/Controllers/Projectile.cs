@@ -1,39 +1,61 @@
 using UnityEngine;
 
-public class Projectile : MonoBehaviour
+namespace Controllers
 {
-    [SerializeField] private float _destroyDelay = 0.25f;
-    [SerializeField] private int _damage = 5;
-    [SerializeField] private Vector3 _force = new Vector3(0, 0, 10);
-
-    private void Start()
+    public class Projectile : MonoBehaviour
     {
-        Destroy(gameObject, _destroyDelay);
-    }
+        [SerializeField] private float destroyDelay = 0.25f;
+        [SerializeField] private int damage = 5;
+        [SerializeField] private Vector3 force = new Vector3(0, 0, 10);
 
-    private void OnTriggerEnter(Collider other)
-    {
-        Target target = other.gameObject.GetComponent<Target>();
-        if (target != null)
+        private Rigidbody _rb;
+
+        private void Awake()
         {
-            target.DestroyTarget();
+            _rb = GetComponent<Rigidbody>();
         }
 
-        Rigidbody rb = other.gameObject.GetComponent<Rigidbody>();
-        if (rb != null)
+        private void Start()
         {
-            rb.AddForce(_force, ForceMode.Impulse);
+            Destroy(gameObject, destroyDelay);
         }
 
-        if (other.gameObject.CompareTag("Enemy"))
+        public void Launch(Vector3 velocity)
         {
-            EnemyHealthController healthController = other.gameObject.GetComponent<EnemyHealthController>();
-            if (healthController != null)
+            if (_rb)
             {
-                healthController.TakeDamage(_damage);
+#if UNITY_6000_0_OR_NEWER
+                _rb.linearVelocity = velocity;
+#else
+                _rb.velocity = velocity;
+#endif
             }
         }
 
-        Destroy(gameObject);
+        private void OnTriggerEnter(Collider other)
+        {
+            Target target = other.gameObject.GetComponent<Target>();
+            if (target != null)
+            {
+                target.DestroyTarget();
+            }
+
+            Rigidbody rb = other.gameObject.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.AddForce(force, ForceMode.Impulse);
+            }
+
+            if (other.gameObject.CompareTag("Enemy"))
+            {
+                EnemyHealthController healthController = other.gameObject.GetComponent<EnemyHealthController>();
+                if (healthController != null)
+                {
+                    healthController.TakeDamage(damage);
+                }
+            }
+
+            Destroy(gameObject);
+        }
     }
 }
