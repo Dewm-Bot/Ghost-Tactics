@@ -7,11 +7,11 @@ using Player;
 public class HealthBar : MonoBehaviour
 {
     [Header("UI Components - Health")]
-    public Slider healthSlider;
+    public GridIconBar healthGridBar;
     public TextMeshProUGUI healthText;
 
     [Header("UI Components - Armor")]
-    public Slider armorSlider;
+    public GridIconBar armorGridBar;
     public TextMeshProUGUI armorText;
 
     [Header("UI Components - Ammo")]
@@ -39,13 +39,17 @@ public class HealthBar : MonoBehaviour
         }
 
         // Initialize health display
-        healthSlider.maxValue = playerHealth.MaxHealth;
-        healthSlider.value = playerHealth.CurrentHealth;
+        if (healthGridBar != null)
+        {
+            healthGridBar.UpdateIcons(playerHealth.CurrentHealth, playerHealth.MaxHealth);
+        }
         healthText.text = $"{playerHealth.CurrentHealth}/{playerHealth.MaxHealth}";
 
         // Initialize armor display
-        armorSlider.maxValue = playerHealth.MaxArmor;
-        armorSlider.value = playerHealth.CurrentArmor;
+        if (armorGridBar != null)
+        {
+            armorGridBar.UpdateIcons(playerHealth.CurrentArmor, playerHealth.MaxArmor);
+        }
         armorText.text = $"{playerHealth.CurrentArmor}/{playerHealth.MaxArmor}";
 
         // Subscribe to health and armor events
@@ -104,15 +108,19 @@ public class HealthBar : MonoBehaviour
     void UpdateHealthBar(int currentHealth, int maxHealth)
     {
         healthText.text = $"{currentHealth}/{maxHealth}";
-        healthSlider.maxValue = maxHealth;
-        healthSlider.value = currentHealth;
+        if (healthGridBar != null)
+        {
+            healthGridBar.UpdateIcons(currentHealth, maxHealth);
+        }
     }
 
     void UpdateArmorBar(int currentArmor, int maxArmor)
     {
         armorText.text = $"{currentArmor}/{maxArmor}";
-        armorSlider.maxValue = maxArmor;
-        armorSlider.value = currentArmor;
+        if (armorGridBar != null)
+        {
+            armorGridBar.UpdateIcons(currentArmor, maxArmor);
+        }
     }
 
     void UpdateAmmoDisplay(int ammoInMagazine, int ammoReserve, int magazineSize)
