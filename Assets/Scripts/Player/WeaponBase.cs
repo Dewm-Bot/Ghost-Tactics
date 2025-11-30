@@ -2,6 +2,7 @@
 
 using Controllers;
 using UnityEngine;
+using System;
 
 namespace Player
 {
@@ -20,23 +21,31 @@ namespace Player
         [SerializeField] protected int ammoReserve = 90;
         [SerializeField] protected float reloadDuration = 1.6f;
         [SerializeField] protected bool autoReloadOnEmpty;
-        
+
         [Header("Audio")]
         [SerializeField] protected AudioClip fireSound;
         [SerializeField] protected AudioClip reloadSound;
         [SerializeField] protected AudioClip dryFireSound;
         protected AudioSource audioSource;
-        
+
         [Header("Animation")]
         [SerializeField] protected Animator armsAnimator;
         [SerializeField] protected Animator weaponAnimator;
         [SerializeField] protected string reloadingParameter = "Reloading";
-        
+
         protected bool canFire = true;
         protected float fireTimer;
         protected bool isReloading;
         protected bool canPlayDryFire = true;
-        
+
+        // Ammo properties for external access
+        public int MagazineSize => magazineSize;
+        public int AmmoInMagazine => ammoInMagazine;
+        public int AmmoReserve => ammoReserve;
+
+        // Event for ammo changes
+        public event Action<int, int, int> OnAmmoChanged; // (ammoInMagazine, ammoReserve, magazineSize)
+
         protected virtual void Awake()
         {
             audioSource = GetComponent<AudioSource>();
@@ -44,6 +53,12 @@ namespace Player
             {
                 audioSource = gameObject.AddComponent<AudioSource>();
             }
+        }
+
+        protected virtual void Start()
+        {
+            // Initialize ammo display on start
+            OnAmmoChanged?.Invoke(ammoInMagazine, ammoReserve, magazineSize);
         }
 
         public virtual void Fire()
@@ -58,32 +73,32 @@ namespace Player
                     audioSource.PlayOneShot(dryFireSound);
                     canPlayDryFire = false;
                 }
-                
+
                 // Reset canFire to prevent dry fire spam when holding button
                 canFire = false;
                 fireTimer = 0f;
-                
+
                 if (autoReloadOnEmpty && ammoReserve > 0)
                 {
                     TryStartReload();
                 }
                 return;
             }
-            
+
             canFire = false;
             fireTimer = 0f;
             canPlayDryFire = true; // Reset dry fire flag when successfully firing
-            
+
             if (!projectilePrefab)
             {
                 Debug.LogError("Projectile prefab is not assigned!");
                 return;
             }
-            
-            GameObject projectileGo = Instantiate(projectilePrefab, 
-                projectileSpawnPoint.position, 
+
+            GameObject projectileGo = Instantiate(projectilePrefab,
+                projectileSpawnPoint.position,
                 projectileSpawnPoint.rotation);
-            
+
             // Prefer cached projectile
             Projectile projComponent = projectileGo.GetComponent<Projectile>();
             if (projComponent)
@@ -94,12 +109,15 @@ namespace Player
             {
                 Debug.LogWarning("Projectile prefab has no Projectile to apply velocity.");
             }
-            
-            
+
+
             ammoInMagazine = Mathf.Max(0, ammoInMagazine - 1);
-            
+
+            // Notify ammo change
+            OnAmmoChanged?.Invoke(ammoInMagazine, ammoReserve, magazineSize);
+
             Destroy(projectileGo, projectileLifetime);
-            
+
             // Play fire sound
             audioSource.PlayOneShot(fireSound);
 
@@ -133,11 +151,11 @@ namespace Player
         private System.Collections.IEnumerator ReloadRoutine()
         {
             isReloading = true;
-            
+
             // Set reload animation parameter to true
             if (armsAnimator) armsAnimator.SetBool(reloadingParameter, true);
             if (weaponAnimator) weaponAnimator.SetBool(reloadingParameter, true);
-            
+
             if (reloadSound) audioSource.PlayOneShot(reloadSound);
 
             // Wait for reload duration
@@ -154,13 +172,16 @@ namespace Player
             ammoInMagazine += toLoad;
             ammoReserve -= toLoad;
 
+            // Notify ammo change after reload
+            OnAmmoChanged?.Invoke(ammoInMagazine, ammoReserve, magazineSize);
+
             // Set reload animation parameter to false
             if (armsAnimator) armsAnimator.SetBool(reloadingParameter, false);
             if (weaponAnimator) weaponAnimator.SetBool(reloadingParameter, false);
-            
+
             isReloading = false;
         }
-        
+
         public virtual void Update()
         {
 

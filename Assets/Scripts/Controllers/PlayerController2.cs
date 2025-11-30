@@ -78,6 +78,7 @@ public class PlayerController2 : MonoBehaviour
     [SerializeField] private WeaponMount weaponMount;
     [SerializeField] private WeaponBase startingWeapon;
     private WeaponBase _currentWeapon;
+    public WeaponBase CurrentWeapon => _currentWeapon; // Public accessor for UI and other systems
     private bool isAiming = false;
 
     [Header("Debug Mode")]
