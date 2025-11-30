@@ -15,8 +15,8 @@ public class HealthBar : MonoBehaviour
     public TextMeshProUGUI armorText;
 
     [Header("UI Components - Ammo")]
-    public TextMeshProUGUI ammoInMagazineText;  // 当前弹匣中的弹药数
-    public TextMeshProUGUI ammoReserveText;    // 剩余备用弹药数
+    public TextMeshProUGUI ammoInMagazineText;  // Current ammo in magazine
+    public TextMeshProUGUI ammoReserveText;    // Remaining reserve ammo
 
     [Header("Health System")]
     [SerializeField] private PlayerHealthController playerHealth;
@@ -117,13 +117,13 @@ public class HealthBar : MonoBehaviour
 
     void UpdateAmmoDisplay(int ammoInMagazine, int ammoReserve, int magazineSize)
     {
-        // 更新当前弹匣弹药数
+        // Update current magazine ammo count
         if (ammoInMagazineText != null)
         {
             ammoInMagazineText.text = ammoInMagazine.ToString();
         }
 
-        // 更新剩余备用弹药数
+        // Update remaining reserve ammo count
         if (ammoReserveText != null)
         {
             ammoReserveText.text = ammoReserve.ToString();
