@@ -4842,38 +4842,6 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 3389210850032213536, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: _speed
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3389210850032213536, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: _slerpSpeedX
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 3389210850032213536, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: _slerpSpeedY
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 3389210850032213536, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: _acceleration
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3389210850032213536, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: _upShiftScaler
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3389210850032213536, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: _downShiftScaler
-      value: -0.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 3389210850032213536, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: _upPositionScaler
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3389210850032213536, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: _downPositionScaler
-      value: -1
-      objectReference: {fileID: 0}
     - target: {fileID: 3770426093461228640, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
       propertyPath: projectileSpeed
       value: 70

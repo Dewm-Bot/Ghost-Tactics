@@ -1,3 +1,4 @@
+using Player;
 using UnityEngine;
 
 public class WeaponScript : WeaponBase
@@ -28,7 +29,7 @@ public class WeaponScript : WeaponBase
     {
         base.Update(); 
         
-        if (_playerController != null && _playerController.isFiring)
+        if (_playerController && _playerController.isFiring)
         {
             Fire(); 
         }

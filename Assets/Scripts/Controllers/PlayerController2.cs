@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using GhostTacticsNS;
 using System.Collections;
+using Player;
 
 public class PlayerController2 : MonoBehaviour
 {
@@ -128,7 +129,11 @@ public class PlayerController2 : MonoBehaviour
 
         //Weapon Bindings
         _inputs.Player.Fire.performed += ctx => isFiring = true;
-        _inputs.Player.Fire.canceled += ctx => isFiring = false;
+        _inputs.Player.Fire.canceled += ctx => {
+            isFiring = false;
+            _currentWeapon.OnFireInputReleased(); //Check if we let go on the trigger for dry fire / semi auto
+        };
+        _inputs.Player.Reload.performed += ctx => _currentWeapon.Reload();
         _inputs.Player.AimDownSights.performed += ctx => ToggleAim(true);
         _inputs.Player.AimDownSights.canceled += ctx => ToggleAim(false);
 
@@ -151,7 +156,7 @@ public class PlayerController2 : MonoBehaviour
         HandleLeanInput();
             
         // Weapon firing
-        if (isFiring && _currentWeapon != null)
+        if (isFiring && _currentWeapon)
         {
             _currentWeapon.Fire();
         }
@@ -216,7 +221,7 @@ public class PlayerController2 : MonoBehaviour
                 case > 0f:
                 {
                     float upwardAmount = (_xRotation / 90f);
-                    targetGunPosition += Vector3.up * (upwardAmount * _upShiftScaler);        // Move gun up
+                    targetGunPosition += Vector3.forward * (upwardAmount * _upShiftScaler);        // Move gun up
                     targetGunPosition += Vector3.up * (upwardAmount * _upPositionScaler);     // Additional upward positioning
                     break;
                 }

@@ -1,4 +1,6 @@
 // WeaponMount.cs
+
+using Player;
 using UnityEngine;
 
 public class WeaponMount : MonoBehaviour
@@ -66,11 +68,11 @@ public class WeaponMount : MonoBehaviour
 
     private void Update()
     {
-        if (currentWeapon == null) return;
+        if (!currentWeapon) return;
     
         Transform targetPosition = isAiming ? adsPosition : defaultPosition;
         
-        if (isAiming && enableSightAlignment && weaponSight != null && cameraSightTarget != null)
+        if (isAiming && enableSightAlignment && weaponSight && cameraSightTarget)
         {
             // Calculate the offset needed to align the weapon sight with camera center
             Vector3 sightOffset = cameraSightTarget.position - weaponSight.position;
@@ -116,14 +118,14 @@ public class WeaponMount : MonoBehaviour
         }
         
         // Draw camera sight target
-        if (cameraSightTarget != null)
+        if (cameraSightTarget)
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(cameraSightTarget.position, 0.03f);
         }
         
         // Draw sight alignment line when ADS
-        if (isAiming && weaponSight != null && cameraSightTarget != null)
+        if (isAiming && weaponSight && cameraSightTarget)
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(weaponSight.position, cameraSightTarget.position);
