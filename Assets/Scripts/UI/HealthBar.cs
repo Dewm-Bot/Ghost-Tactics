@@ -59,7 +59,11 @@ public class HealthBar : MonoBehaviour
         // Auto-find PlayerController2 if not assigned
         if (playerController == null)
         {
-            playerController = FindFirstObjectByType<PlayerController2>();
+            GameObject playerObject = GameObject.FindWithTag("Player");
+            if (playerObject != null)
+            {
+                playerController = playerObject.GetComponent<PlayerController2>();
+            }
             if (playerController == null)
             {
                 Debug.LogWarning("PlayerController2 not found! Ammo display will not work. Please assign it in the Inspector or ensure a PlayerController2 exists in the scene.");
@@ -79,7 +83,7 @@ public class HealthBar : MonoBehaviour
         if (playerController != null)
         {
             WeaponBase newWeapon = playerController.CurrentWeapon;
-            
+
             if (newWeapon != null && newWeapon != currentWeapon)
             {
                 UpdateWeaponReference(newWeapon);
