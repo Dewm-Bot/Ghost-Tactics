@@ -1729,9 +1729,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47c18995f05ca6647b1b240e88c0344b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthGridBar: {fileID: 0}
+  healthGridBar: {fileID: 8485500399897438401}
   healthText: {fileID: 5900676503552332694}
-  armorGridBar: {fileID: 0}
+  armorGridBar: {fileID: 3791808344152141131}
   armorText: {fileID: 6113655704271185844}
   ammoInMagazineText: {fileID: 7944545502499642164}
   ammoReserveText: {fileID: 1471971039493867206}
