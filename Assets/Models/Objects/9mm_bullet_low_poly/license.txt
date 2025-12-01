@@ -1,0 +1,8 @@
+Model Information:
+* title:	9mm bullet low poly
+* source:	https://sketchfab.com/3d-models/9mm-bullet-low-poly-b8cd58388d414dea9383523761a56226
+* author:	matsi_mus (https://sketchfab.com/matsi_mus)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

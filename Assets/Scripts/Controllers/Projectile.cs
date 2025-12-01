@@ -13,6 +13,10 @@ namespace Controllers
         private void Awake()
         {
             _rb = GetComponent<Rigidbody>();
+            if (_rb)
+            {
+                _rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            }
         }
 
         private void Start()
@@ -24,32 +28,38 @@ namespace Controllers
         {
             if (_rb)
             {
-#if UNITY_6000_0_OR_NEWER
                 _rb.linearVelocity = velocity;
-#else
-                _rb.velocity = velocity;
-#endif
             }
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            Target target = other.gameObject.GetComponent<Target>();
+            HandleHit(other.gameObject);
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            HandleHit(collision.gameObject);
+        }
+
+        private void HandleHit(GameObject other)
+        {
+            Target target = other.GetComponent<Target>();
             if (target != null)
             {
                 target.DestroyTarget();
             }
 
-            Rigidbody rb = other.gameObject.GetComponent<Rigidbody>();
+            Rigidbody rb = other.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.AddForce(force, ForceMode.Impulse);
             }
 
-            if (other.gameObject.CompareTag("Enemy"))
+            if (other.CompareTag("Enemy"))
             {
-                EnemyHealthController healthController = other.gameObject.GetComponent<EnemyHealthController>();
-                if (healthController != null)
+                EnemyHealthController healthController = other.GetComponent<EnemyHealthController>();
+                if (healthController)
                 {
                     healthController.TakeDamage(damage);
                 }

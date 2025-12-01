@@ -1,0 +1,11 @@
+Model Information:
+* title:	Old cassette - Старые кассеты
+* source:	https://sketchfab.com/3d-models/old-cassette-4be9e581d78848be8ba6671dc82953f8
+* author:	Dima Kulyashov (https://sketchfab.com/DimaKulyashov)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Old cassette - Старые кассеты" (https://sketchfab.com/3d-models/old-cassette-4be9e581d78848be8ba6671dc82953f8) by Dima Kulyashov (https://sketchfab.com/DimaKulyashov) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

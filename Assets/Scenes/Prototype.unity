@@ -2860,33 +2860,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3389210850032213536, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: debugMode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3389210850032213536, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: previewADSInDebug
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3389210850032213536, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: showCameraCenterGizmos
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3770426093461228640, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: projectilePrefab
-      value: 
-      objectReference: {fileID: 5622335119581553610, guid: 4b07c3732b5a7a9eb94d84e5c08b093c, type: 3}
-    - target: {fileID: 5009375962140281579, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -18.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009375962140281579, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -2.55
-      objectReference: {fileID: 0}
-    - target: {fileID: 5009375962140281579, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 6.31
+      propertyPath: reloadDuration
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 9080454081230392727, guid: a4152d1f596f75079a5cf059b890ccf0, type: 3}
       propertyPath: m_Name

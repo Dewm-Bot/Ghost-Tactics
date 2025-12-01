@@ -1,0 +1,11 @@
+Model Information:
+* title:	lowpoly portable Power Generator
+* source:	https://sketchfab.com/3d-models/lowpoly-portable-power-generator-f44013403edc4d6c87350f86e3b14c4c
+* author:	Arrangemonk (https://sketchfab.com/Arrangemonk9000)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "lowpoly portable Power Generator" (https://sketchfab.com/3d-models/lowpoly-portable-power-generator-f44013403edc4d6c87350f86e3b14c4c) by Arrangemonk (https://sketchfab.com/Arrangemonk9000) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
