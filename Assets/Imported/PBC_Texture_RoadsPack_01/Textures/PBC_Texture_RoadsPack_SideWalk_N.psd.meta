@@ -1,5 +1,12 @@
 fileFormatVersion: 2
 guid: ee7af55ecdf634c6e893f8ebc61cedfb
+AssetOrigin:
+  serializedVersion: 1
+  productId: 2987
+  packageName: PBC Texture RoadsPack 01
+  packageVersion: 1.0
+  assetPath: Assets/PBC_Texture_RoadsPack_01/Textures/PBC_Texture_RoadsPack_SideWalk_N.psd
+  uploadId: 26135
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -7,7 +14,7 @@ TextureImporter:
   mipmaps:
     mipMapMode: 0
     enableMipMap: 1
-    sRGBTexture: 1
+    sRGBTexture: 0
     linearTexture: 0
     fadeOut: 0
     borderMipMap: 0
@@ -54,7 +61,7 @@ TextureImporter:
   alphaUsage: 1
   alphaIsTransparency: 0
   spriteTessellationDetail: -1
-  textureType: 0
+  textureType: 1
   textureShape: 1
   singleChannelComponent: 0
   flipbookRows: 1
@@ -115,10 +122,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 2987
-  packageName: PBC Texture RoadsPack 01
-  packageVersion: 1.0
-  assetPath: Assets/PBC_Texture_RoadsPack_01/Textures/PBC_Texture_RoadsPack_SideWalk_N.psd
-  uploadId: 26135
