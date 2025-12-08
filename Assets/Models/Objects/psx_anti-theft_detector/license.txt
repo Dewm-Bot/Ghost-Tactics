@@ -1,0 +1,11 @@
+Model Information:
+* title:	psx anti-theft detector
+* source:	https://sketchfab.com/3d-models/psx-anti-theft-detector-92a61c7c0d074c7e9e7b45e42e37ecae
+* author:	zynxeror (https://sketchfab.com/zynxeror)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "psx anti-theft detector" (https://sketchfab.com/3d-models/psx-anti-theft-detector-92a61c7c0d074c7e9e7b45e42e37ecae) by zynxeror (https://sketchfab.com/zynxeror) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

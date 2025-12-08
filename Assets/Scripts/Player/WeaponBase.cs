@@ -15,6 +15,11 @@ namespace Player
         [SerializeField] protected float projectileSpeed = 10f;
         [SerializeField] protected float projectileLifetime = 5f;
 
+        [Header("Recoil")]
+        [SerializeField] protected float verticalRecoil = 2f;
+        [SerializeField] protected Vector2 horizontalRecoilRange = new Vector2(-0.3f, 0.3f);
+        [SerializeField] protected float horizontalRecoilDivider = 4f;
+
         [Header("Ammo / Reload")]
         [SerializeField] protected int magazineSize = 30;
         [SerializeField] protected int ammoInMagazine = 30;
@@ -32,7 +37,8 @@ namespace Player
         [SerializeField] protected Animator armsAnimator;
         [SerializeField] protected Animator weaponAnimator;
         [SerializeField] protected string reloadingParameter = "Reloading";
-
+        protected global::PlayerController2 ownerController;
+        
         protected bool canFire = true;
         protected float fireTimer;
         protected bool isReloading;
@@ -117,9 +123,11 @@ namespace Player
             OnAmmoChanged?.Invoke(ammoInMagazine, ammoReserve, magazineSize);
 
             Destroy(projectileGo, projectileLifetime);
-
-            // Play fire sound
-            audioSource.PlayOneShot(fireSound);
+            ApplyRecoilKick();
+            if (fireSound && audioSource)
+            {
+                audioSource.PlayOneShot(fireSound);
+            }
 
 
             //Check if we can auto reload
@@ -137,6 +145,11 @@ namespace Player
         public void Reload()
         {
             TryStartReload();
+        }
+
+        public virtual void SetOwner(global::PlayerController2 owner)
+        {
+            ownerController = owner;
         }
 
         private void TryStartReload()
@@ -193,6 +206,18 @@ namespace Player
                     canFire = true;
                 }
             }
+        }
+
+        protected virtual void ApplyRecoilKick()
+        {
+            if (!ownerController) return;
+            float horizontalKick = Random.Range(horizontalRecoilRange.x, horizontalRecoilRange.y);
+            if (Mathf.Abs(horizontalRecoilDivider) > 0.001f)
+            {
+                horizontalKick /= horizontalRecoilDivider;
+            }
+            Vector2 recoilDelta = new Vector2(horizontalKick, verticalRecoil);
+            ownerController.ApplyRecoil(recoilDelta);
         }
     }
 }

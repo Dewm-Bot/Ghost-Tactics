@@ -66,7 +66,7 @@ public class PlayerHealthController : MonoBehaviour
     {
         if (CanTakeDamage)
         {
-            StartCoroutine(ShakeCamera(damageAmount));
+            //StartCoroutine(ShakeCamera(damageAmount));
             if (currentArmor > 0)
             {
                 int damageToArmor = Mathf.Min(damageAmount, currentArmor);
@@ -91,7 +91,7 @@ public class PlayerHealthController : MonoBehaviour
                 
 
                 // Reduce player's speed by half
-                if (playerController != null)
+                if (playerController)
                 {
                     playerController.ReduceSpeedByHalf();
                     StartCoroutine(ResetSpeedAfterDelay());

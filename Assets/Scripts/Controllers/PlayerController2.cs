@@ -195,20 +195,12 @@ public class PlayerController2 : MonoBehaviour
         _xRotation -= _mouseDelta.y * mouseSensY;
         _yRotation += _mouseDelta.x * mouseSensX;
         _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
-
-        Quaternion cameraRotation = Quaternion.Euler(_xRotation, 0f, 0f);
-        _camera.transform.localRotation =
-            Quaternion.Slerp(_camera.transform.localRotation, cameraRotation, _leanSpeed * Time.deltaTime);
-
-        _controller.transform.rotation = Quaternion.Euler(0f, _yRotation, 0f);
-
-        ApplyGunPositioning();
-
-        AdjustGunRotation(cameraRotation);
+        SyncViewToCurrentRotation();
     }
 
     private void ApplyGunPositioning()
     {
+        if (!_currentGun) return;
         Vector3 targetGunPosition = new Vector3(_currentGun.transform.localPosition.x,
             ((_camera.transform.localPosition.y - 0.5f) - _currentGun.transform.localPosition.y),
             _camera.transform.localPosition.z);
@@ -284,6 +276,24 @@ public class PlayerController2 : MonoBehaviour
             targetGunRotation,
             _leanSpeed * Time.deltaTime
         );
+    }
+
+    private void SyncViewToCurrentRotation()
+    {
+        if (!_camera || !_controller) return;
+        Quaternion cameraRotation = Quaternion.Euler(_xRotation, 0f, 0f);
+        _camera.transform.localRotation =
+            Quaternion.Slerp(_camera.transform.localRotation, cameraRotation, _leanSpeed * Time.deltaTime);
+        _controller.transform.rotation = Quaternion.Euler(0f, _yRotation, 0f);
+        ApplyGunPositioning();
+        AdjustGunRotation(cameraRotation);
+    }
+
+    public void ApplyRecoil(Vector2 recoilDelta)
+    {
+        _yRotation += recoilDelta.x;
+        _xRotation = Mathf.Clamp(_xRotation - recoilDelta.y, -90f, 90f);
+        SyncViewToCurrentRotation();
     }
 
     //Character movement handler
@@ -450,19 +460,22 @@ public class PlayerController2 : MonoBehaviour
 
         private void EquipWeapon(WeaponBase newWeapon)
         {
-            if (_currentWeapon != null)
+            if (_currentWeapon)
             {
-                // Properly unequip the current weapon
-                if (weaponMount != null)
+                if (weaponMount)
                 {
                     weaponMount.MountWeapon(null);
                 }
+                _currentWeapon.SetOwner(null);
                 _currentWeapon = null;
             }
 
-            // Use the existing weapon instance instead of instantiating
             _currentWeapon = newWeapon;
-            if (weaponMount != null)
+            if (_currentWeapon)
+            {
+                _currentWeapon.SetOwner(this);
+            }
+            if (weaponMount)
             {
                 weaponMount.MountWeapon(_currentWeapon);
             }
