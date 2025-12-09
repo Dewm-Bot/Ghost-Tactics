@@ -3,6 +3,7 @@
 using Controllers;
 using UnityEngine;
 using System;
+using Random = UnityEngine.Random;
 
 namespace Player
 {
