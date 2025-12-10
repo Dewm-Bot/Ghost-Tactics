@@ -6,8 +6,10 @@ public class GridIconBar : MonoBehaviour
 {
     [Header("Icon Settings")]
     [SerializeField] private Sprite filledIcon;     // Filled grid icon sprite
-    [SerializeField] private List<Image> iconImages = new List<Image>(); // Manually placed icon images
+    [SerializeField] private List<GameObject> iconGameObjects = new List<GameObject>(); // Manually placed icon GameObjects
     [SerializeField] private Color iconColor = Color.white;
+    [SerializeField] private Color yellowColor = Color.yellow;
+    [SerializeField] private Color redColor = Color.red;
 
     void Start()
     {
@@ -16,48 +18,97 @@ public class GridIconBar : MonoBehaviour
 
     private void InitializeIcons()
     {
-        // Set all icons to filled and apply color
-        foreach (Image img in iconImages)
+        // Set all icons to filled and apply color based on initial count
+        int visibleCount = iconGameObjects.Count;
+        Color currentColor = GetColorForIconCount(visibleCount);
+
+        foreach (GameObject iconObj in iconGameObjects)
         {
-            if (img != null)
+            if (iconObj != null)
             {
-                img.sprite = filledIcon;
-                img.color = iconColor;
-                img.gameObject.SetActive(true);
+                Image img = iconObj.GetComponent<Image>();
+                if (img != null)
+                {
+                    img.sprite = filledIcon;
+                    img.color = currentColor;
+                }
+                iconObj.SetActive(true);
             }
         }
     }
 
     public void UpdateIcons(int currentValue, int maxValue)
     {
-        if (iconImages.Count == 0) return;
+        if (iconGameObjects.Count == 0) return;
 
         // Calculate how many icons should be visible
-        float fillRatio = maxValue > 0 ? (float)currentValue / maxValue : 0f;
-        int visibleCount = Mathf.RoundToInt(fillRatio * iconImages.Count);
-        visibleCount = Mathf.Clamp(visibleCount, 0, iconImages.Count);
-
-        // Show/hide icons based on count
-        for (int i = 0; i < iconImages.Count; i++)
+        // Each icon represents (maxValue / iconGameObjects.Count) amount
+        int visibleCount = 0;
+        if (maxValue > 0 && currentValue > 0)
         {
-            if (iconImages[i] != null)
+            float armorPerIcon = (float)maxValue / iconGameObjects.Count;
+            visibleCount = Mathf.CeilToInt((float)currentValue / armorPerIcon);
+        }
+        visibleCount = Mathf.Clamp(visibleCount, 0, iconGameObjects.Count);
+
+        // Get color based on visible count
+        Color currentColor = GetColorForIconCount(visibleCount);
+
+        // Show/hide icons based on count and update colors
+        for (int i = 0; i < iconGameObjects.Count; i++)
+        {
+            if (iconGameObjects[i] != null)
             {
                 // Show icon if index is less than visible count, hide otherwise
-                iconImages[i].gameObject.SetActive(i < visibleCount);
+                bool shouldBeActive = i < visibleCount;
+                iconGameObjects[i].SetActive(shouldBeActive);
+
+                // Update color for visible icons
+                if (shouldBeActive)
+                {
+                    Image img = iconGameObjects[i].GetComponent<Image>();
+                    if (img != null)
+                    {
+                        img.color = currentColor;
+                    }
+                }
             }
+        }
+    }
+
+    private Color GetColorForIconCount(int visibleCount)
+    {
+        // Red when 4 or fewer icons left
+        if (visibleCount <= 4)
+        {
+            return redColor;
+        }
+        // Yellow when 7 or fewer icons left
+        else if (visibleCount <= 7)
+        {
+            return yellowColor;
+        }
+        // Default color when more than 7 icons left
+        else
+        {
+            return iconColor;
         }
     }
 
     public void SetIcon(Sprite filled)
     {
         filledIcon = filled;
-        
+
         // Update existing icons
-        foreach (Image img in iconImages)
+        foreach (GameObject iconObj in iconGameObjects)
         {
-            if (img != null && img.gameObject.activeSelf)
+            if (iconObj != null && iconObj.activeSelf)
             {
-                img.sprite = filledIcon;
+                Image img = iconObj.GetComponent<Image>();
+                if (img != null)
+                {
+                    img.sprite = filledIcon;
+                }
             }
         }
     }

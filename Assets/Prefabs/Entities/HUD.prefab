@@ -872,7 +872,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0.000015258789, y: 0.095573425}
+  m_AnchoredPosition: {x: -12, y: 0.095573425}
   m_SizeDelta: {x: 0, y: 43}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3791808344152141131
@@ -888,8 +888,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   filledIcon: {fileID: 21300000, guid: 8a8eb9e6a2fa941a7aac91c6eadb3dad, type: 3}
-  iconImages: []
+  iconGameObjects:
+  - {fileID: 8047176473457270358}
+  - {fileID: 815361338008459457}
+  - {fileID: 619584267695482158}
+  - {fileID: 4641633529595480348}
+  - {fileID: 6815375554259964651}
+  - {fileID: 5596551402777747261}
+  - {fileID: 7440127177634556036}
+  - {fileID: 7651814451553919002}
+  - {fileID: 2344787186071932510}
+  - {fileID: 8409239044735990677}
   iconColor: {r: 0, g: 1, b: 0.1826632, a: 1}
+  yellowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  redColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!114 &5885375383289956963
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -907,7 +919,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 4
+  m_ChildAlignment: 3
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 90, y: 90}
@@ -3311,7 +3323,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0.000015258789, y: 0.095573425}
+  m_AnchoredPosition: {x: -11, y: 0.095573425}
   m_SizeDelta: {x: 0, y: 43}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &8485500399897438401
@@ -3327,8 +3339,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   filledIcon: {fileID: 21300000, guid: 8a8eb9e6a2fa941a7aac91c6eadb3dad, type: 3}
-  iconImages: []
+  iconGameObjects:
+  - {fileID: 7438318157364809327}
+  - {fileID: 5690567394311547549}
+  - {fileID: 5526863314403496860}
+  - {fileID: 8476008463811893536}
+  - {fileID: 9108562040223246630}
+  - {fileID: 4071916903597231367}
+  - {fileID: 2750241322870359340}
+  - {fileID: 8235894406814594492}
+  - {fileID: 2558209096171685174}
+  - {fileID: 6345558721505985123}
   iconColor: {r: 0, g: 1, b: 0.1826632, a: 1}
+  yellowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  redColor: {r: 1, g: 0.3915094, b: 0.3915094, a: 1}
 --- !u!114 &8513975165480906104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3346,7 +3370,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 4
+  m_ChildAlignment: 3
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 90, y: 90}
