@@ -1,5 +1,3 @@
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
 Shader "Toon/Basic" {
 	Properties {
 		_Color ("Main Color", Color) = (.5,.5,.5,1)
@@ -7,59 +5,86 @@ Shader "Toon/Basic" {
 		_ToonShade ("ToonShader Cubemap(RGB)", CUBE) = "" { }
 	}
 
-
 	SubShader {
-		Tags { "RenderType"="Opaque" }
+		Tags { 
+			"RenderType"="Opaque"
+			"RenderPipeline"="UniversalRenderPipeline"
+		}
+		LOD 200
+		
 		Pass {
-			Name "BASE"
+			Name "ForwardLit"
+			Tags { "LightMode"="UniversalForward" }
 			Cull Off
 			
-			CGPROGRAM
+			HLSLPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
 			#pragma multi_compile_fog
+			#pragma multi_compile_instancing
 
-			#include "UnityCG.cginc"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-			sampler2D _MainTex;
-			samplerCUBE _ToonShade;
-			float4 _MainTex_ST;
-			float4 _Color;
+			TEXTURE2D(_MainTex);
+			SAMPLER(sampler_MainTex);
+			TEXTURECUBE(_ToonShade);
+			SAMPLER(sampler_ToonShade);
+			
+			CBUFFER_START(UnityPerMaterial)
+				float4 _MainTex_ST;
+				float4 _Color;
+			CBUFFER_END
 
-			struct appdata {
-				float4 vertex : POSITION;
-				float2 texcoord : TEXCOORD0;
-				float3 normal : NORMAL;
+			struct Attributes {
+				float4 positionOS : POSITION;
+				float2 uv : TEXCOORD0;
+				float3 normalOS : NORMAL;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 			
-			struct v2f {
-				float4 pos : SV_POSITION;
-				float2 texcoord : TEXCOORD0;
-				float3 cubenormal : TEXCOORD1;
-				UNITY_FOG_COORDS(2)
+			struct Varyings {
+				float4 positionCS : SV_POSITION;
+				float2 uv : TEXCOORD0;
+				float3 cubeNormalVS : TEXCOORD1;
+				float fogFactor : TEXCOORD2;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
-			v2f vert (appdata v)
+			Varyings vert (Attributes input)
 			{
-				v2f o;
-				o.pos = UnityObjectToClipPos (v.vertex);
-				o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
-				o.cubenormal = mul (UNITY_MATRIX_MV, float4(v.normal,0));
-				UNITY_TRANSFER_FOG(o,o.pos);
-				return o;
+				Varyings output;
+				UNITY_SETUP_INSTANCE_ID(input);
+				UNITY_TRANSFER_INSTANCE_ID(input, output);
+				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+				
+				VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
+				output.positionCS = vertexInput.positionCS;
+				output.uv = TRANSFORM_TEX(input.uv, _MainTex);
+				
+				// Transform normal to view space for cubemap lookup
+				float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
+				output.cubeNormalVS = mul((float3x3)UNITY_MATRIX_V, normalWS);
+				
+				output.fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
+				return output;
 			}
 
-			fixed4 frag (v2f i) : SV_Target
+			half4 frag (Varyings input) : SV_Target
 			{
-				fixed4 col = _Color * tex2D(_MainTex, i.texcoord);
-				fixed4 cube = texCUBE(_ToonShade, i.cubenormal);
-				fixed4 c = fixed4(2.0f * cube.rgb * col.rgb, col.a);
-				UNITY_APPLY_FOG(i.fogCoord, c);
-				return c;
+				UNITY_SETUP_INSTANCE_ID(input);
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+				
+				half4 col = _Color * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+				half4 cube = SAMPLE_TEXTURECUBE(_ToonShade, sampler_ToonShade, input.cubeNormalVS);
+				half3 finalColor = 2.0 * cube.rgb * col.rgb;
+				finalColor = MixFog(finalColor, input.fogFactor);
+				return half4(finalColor, col.a);
 			}
-			ENDCG			
+			ENDHLSL
 		}
-	} 
+	}
 
-	Fallback "VertexLit"
+	Fallback "Universal Render Pipeline/Lit"
 }
+

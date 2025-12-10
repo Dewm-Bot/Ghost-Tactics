@@ -22,6 +22,8 @@ public class PlayerController2 : MonoBehaviour
     [ShowOnly] [SerializeField] private float speedmodifier = 0;
     [SerializeField] private float _gravity = 9.81f;
     [SerializeField] private float _jumpHeight = 6.0f;
+    [SerializeField] private float _jumpCooldown = 1.0f;
+    private float _lastJumpTime = 0f;
     [SerializeField] private float _crouchSpeed = 0.1f;
     [SerializeField] private float _crouchHeight = 0.5f;
     private Vector3 _crouchVector = new Vector3(0, 0.5f, 0);
@@ -140,6 +142,7 @@ public class PlayerController2 : MonoBehaviour
 
 
         _yawClampMin = Mathf.Abs(_yawClampMin);
+        _lastJumpTime = _jumpCooldown;
     }
 
     private void Update()
@@ -367,7 +370,12 @@ public class PlayerController2 : MonoBehaviour
 
     private void Jump()
     {
-        _velocity.y = (_jumpHeight);
+        // Check if player is grounded and cooldown has elapsed
+        if (_controller.isGrounded && Time.time >= _lastJumpTime + _jumpCooldown)
+        {
+            _velocity.y = _jumpHeight;
+            _lastJumpTime = Time.time;
+        }
     }
 
 
