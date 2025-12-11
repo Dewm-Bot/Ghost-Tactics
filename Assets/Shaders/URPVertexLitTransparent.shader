@@ -54,6 +54,9 @@ Shader "Custom/URP/VertexLit Transparent"
                 float3 positionWS : TEXCOORD1;
                 float3 normalWS : TEXCOORD2;
                 float fogFactor : TEXCOORD3;
+                #ifdef _ADDITIONAL_LIGHTS_VERTEX
+                half3 vertexLight : TEXCOORD4;
+                #endif
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
             };
@@ -82,6 +85,19 @@ Shader "Custom/URP/VertexLit Transparent"
                 output.normalWS = normalInputs.normalWS;
                 output.uv = TRANSFORM_TEX(input.uv, _MainTex);
                 output.fogFactor = ComputeFogFactor(positionInputs.positionCS.z);
+                
+                #ifdef _ADDITIONAL_LIGHTS_VERTEX
+                half3 vertexLight = half3(0, 0, 0);
+                uint lightsCount = GetAdditionalLightsCount();
+                for (uint lightIndex = 0u; lightIndex < lightsCount; ++lightIndex)
+                {
+                    Light light = GetAdditionalLight(lightIndex, output.positionWS);
+                    half3 lightColor = light.color * light.distanceAttenuation;
+                    half NdotL = saturate(dot(output.normalWS, light.direction));
+                    vertexLight += lightColor * NdotL;
+                }
+                output.vertexLight = vertexLight;
+                #endif
                 
                 return output;
             }

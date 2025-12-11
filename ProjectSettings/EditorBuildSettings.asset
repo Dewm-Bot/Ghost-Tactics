@@ -8,7 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: 235fb7eb309b4144b92e28b2c7a1dd1b
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Prototype.unity
     guid: b942a525ffe6fb484a1a436cb3045cb0
   - enabled: 1
@@ -16,7 +16,7 @@ EditorBuildSettings:
     guid: d312417ea69e1eeeaa7c95a59b6b62a4
   - enabled: 1
     path: Assets/Scenes/WinScreen.unity
-    guid: 4677b6991e4b73e4b9e9ce1a5c9f1b18
+    guid: 88c9119311dc6cdcda4ffe93878f83da
   - enabled: 1
     path: Assets/Scenes/LoseScreen.unity
     guid: 96d84fcdf62846940b4ff1318be95f73
@@ -26,7 +26,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TutorialLevel.unity
     guid: 0ebdfa7b88f489713844431dfbe0b00d
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/TestLevel.unity
     guid: 333ce6c17a1965941bf31d9b2a8c4a94
   - enabled: 1
