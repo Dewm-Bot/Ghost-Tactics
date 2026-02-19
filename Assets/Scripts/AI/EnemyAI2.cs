@@ -271,7 +271,7 @@ public class EnemyAI2 : MonoBehaviour
         _agent = GetComponent<NavMeshAgent>();
         _player = GameObject.FindWithTag("Player").transform;
         _sight = GetComponent<Sight>();
-        baseAgentSpeed = _agent != null ? _agent.speed : 0f;
+        baseAgentSpeed = _agent ? _agent.speed : 0f;
         if (_player != null)
         {
             playerLastPosition = _player.position;

@@ -17,7 +17,7 @@ public class FlockController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        transform.Translate(Vector3.forward * (speed * Time.deltaTime));
         Quaternion targetRot = Quaternion.LookRotation(nextMovementPoint - transform.position);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, 1.0f * Time.deltaTime);
         if (Vector3.Distance(nextMovementPoint, transform.position) <= targetReachedRadius)
