@@ -88,6 +88,7 @@ Shader "Nature/Tree Creator Leaves (URP)" {
 				float3 bitangentWS : TEXCOORD3;
 				float3 viewDirWS : TEXCOORD4;
 				float fogFactor : TEXCOORD5;
+				float3 positionWS : TEXCOORD6;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -106,6 +107,7 @@ Shader "Nature/Tree Creator Leaves (URP)" {
 				VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
 
 				output.positionCS = vertexInput.positionCS;
+				output.positionWS = vertexInput.positionWS;
 				output.uv = TRANSFORM_TEX(input.uv, _MainTex);
 				output.normalWS = normalInput.normalWS;
 				output.tangentWS = normalInput.tangentWS;
@@ -124,58 +126,65 @@ Shader "Nature/Tree Creator Leaves (URP)" {
 				half4 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv) * _Color;
 				half4 bumpSample = SAMPLE_TEXTURE2D(_BumpSpecMap, sampler_BumpSpecMap, input.uv); // RGBA
 				half translucency = SAMPLE_TEXTURE2D(_TranslucencyMap, sampler_TranslucencyMap, input.uv).a;
-				half shadow = SAMPLE_TEXTURE2D(_ShadowTex, sampler_ShadowTex, input.uv).r;
 
 				// Alpha test (cutout)
 				clip(albedo.a - _Cutoff);
-
-				// Reconstruct normal from BumpSpecMap channels:
-				// R = spec, G = normal.x, A = normal.y  (as commented in original)
+				
 				half spec = bumpSample.r;
 				half nx = bumpSample.g * 2.0 - 1.0;
 				half ny = bumpSample.a * 2.0 - 1.0;
 				half nz = sqrt(saturate(1.0 - nx*nx - ny*ny));
 				half3 normalTS = half3(nx, ny, nz);
 
-				// Transform normal to world space using TBN passed from vertex stage
+				
 				float3x3 TBN = float3x3(normalize(input.tangentWS), normalize(input.bitangentWS), normalize(input.normalWS));
 				float3 normalWS = normalize(mul(normalTS, TBN));
 				float3 viewDirWS = normalize(input.viewDirWS);
 
-				// Main light (URP helper)
-				Light mainLight = GetMainLight();
+
+				float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
+				
+
+				Light mainLight = GetMainLight(shadowCoord);
 				half3 lightDir = mainLight.direction;
 				half3 lightColor = mainLight.color;
+				half shadowAtten = mainLight.shadowAttenuation * mainLight.distanceAttenuation;
 
-				// Diffuse
+
 				half NdotL = saturate(dot(normalWS, lightDir));
-				half3 diffuse = albedo.rgb * lightColor * NdotL;
+				half3 diffuse = albedo.rgb * lightColor * NdotL * shadowAtten;
 
-				// Translucency: view-dependent backlight-ish term
+				// Translucency
 				float3 transLightDir = normalize(-lightDir + normalWS * _TranslucencyViewDependency);
 				half transDot = saturate(dot(viewDirWS, transLightDir));
-				half3 translucencyColor = _TranslucencyColor.rgb * transDot * translucency;
+				half3 translucencyColor = _TranslucencyColor.rgb * transDot * translucency * shadowAtten;
 
-				// Specular (simple Blinn-style using stored spec)
+				// Specular 
 				half3 halfDir = normalize(lightDir + viewDirWS);
 				half NdotH = saturate(dot(normalWS, halfDir));
-				half3 specular = spec * pow(NdotH, saturate(0.5 + _SquashAmount * 0.5) * 128.0) * lightColor;
+				half3 specular = spec * pow(NdotH, saturate(0.5 + _SquashAmount * 0.5) * 128.0) * lightColor * shadowAtten;
 
-				// Combine lighting terms
-				half3 litColor = diffuse + specular + translucencyColor;
+				// Additional lights
+				half3 additionalLighting = half3(0, 0, 0);
+				#ifdef _ADDITIONAL_LIGHTS
+				uint pixelLightCount = GetAdditionalLightsCount();
+				for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex) {
+					Light light = GetAdditionalLight(lightIndex, input.positionWS);
+					half addNdotL = saturate(dot(normalWS, light.direction));
+					half addShadow = light.shadowAttenuation * light.distanceAttenuation;
+					additionalLighting += albedo.rgb * light.color * addNdotL * addShadow;
+				}
+				#endif
+				
+				half3 ambient = SampleSH(normalWS) * albedo.rgb;
 
-				// Apply shadow map as a simple multiplicative darken: 
-				// shadow==1 -> full shadow applied; shadow==0 -> no shadow
-				litColor *= (1.0 - _ShadowStrength * shadow);
-
-				// Ambient fallback (use provided ambient color; avoids pipeline built-in SH)
-				half3 ambient = _AmbientColor.rgb;
-				half3 finalColor = litColor + albedo.rgb * ambient;
+				// Combine all lighting terms
+				half3 finalColor = diffuse + specular + translucencyColor + additionalLighting + ambient;
 
 				// Fog
 				finalColor = MixFog(finalColor, input.fogFactor);
 
-				// Preserve alpha from albedo for correct cutout and blending
+				// Preserve alpha from albedo
 				return half4(finalColor, albedo.a);
 			}
 			ENDHLSL
@@ -333,6 +342,73 @@ Shader "Nature/Tree Creator Leaves (URP)" {
 				clip(alpha - _Cutoff);
 
 				return 0;
+			}
+			ENDHLSL
+		}
+
+		Pass {
+			Name "DepthNormals"
+			Tags { "LightMode" = "DepthNormals" }
+
+			ZWrite On
+			Cull Off
+
+			HLSLPROGRAM
+			#pragma target 3.0
+			#pragma vertex DepthNormalsVertex
+			#pragma fragment DepthNormalsFragment
+			#pragma multi_compile_instancing
+			
+			#define _ALPHATEST_ON 1
+
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+			TEXTURE2D(_MainTex);
+			SAMPLER(sampler_MainTex);
+
+			CBUFFER_START(UnityPerMaterial)
+				float4 _MainTex_ST;
+				float _Cutoff;
+				float _SquashAmount;
+			CBUFFER_END
+
+			struct Attributes {
+				float4 positionOS : POSITION;
+				float3 normalOS : NORMAL;
+				float2 uv : TEXCOORD0;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+			};
+
+			struct Varyings {
+				float4 positionCS : SV_POSITION;
+				float2 uv : TEXCOORD0;
+				float3 normalWS : TEXCOORD1;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+			};
+
+			Varyings DepthNormalsVertex(Attributes input) {
+				Varyings output;
+				UNITY_SETUP_INSTANCE_ID(input);
+				UNITY_TRANSFER_INSTANCE_ID(input, output);
+
+				float3 positionOS = input.positionOS.xyz;
+				positionOS.xyz *= _SquashAmount;
+
+				output.positionCS = TransformObjectToHClip(positionOS);
+				output.uv = TRANSFORM_TEX(input.uv, _MainTex);
+				output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+
+				return output;
+			}
+
+			half4 DepthNormalsFragment(Varyings input) : SV_TARGET {
+				UNITY_SETUP_INSTANCE_ID(input);
+
+				half alpha = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv).a;
+				clip(alpha - _Cutoff);
+
+				float3 normalWS = normalize(input.normalWS);
+				return half4(normalWS, 0);
 			}
 			ENDHLSL
 		}

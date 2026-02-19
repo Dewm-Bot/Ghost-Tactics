@@ -147,7 +147,7 @@ public class PlayerController2 : MonoBehaviour
 
     private void Update()
     {
-        // Handle debug mode toggle (P key should work even when frozen)
+        // P key for debug mode
         HandleDebugInput();
         
         // Apply gun positioning even when input is frozen for debugging
@@ -212,7 +212,7 @@ public class PlayerController2 : MonoBehaviour
         {
             switch (_xRotation)
             {
-                // Regular hip fire movement with proper up/down positioning using public variables
+                // Hip Fire
                 // Looking up
                 case > 0f:
                 {
@@ -361,7 +361,7 @@ public class PlayerController2 : MonoBehaviour
         // Ensure _velocity does not contain NaN values
         if (float.IsNaN(_velocity.x) || float.IsNaN(_velocity.y) || float.IsNaN(_velocity.z))
         {
-            Debug.LogError("Velocity contains NaN values: " + _velocity);
+            print("Velocity contains NaN values: " + _velocity);
             _velocity = Vector3.zero;
         }
 
@@ -414,7 +414,8 @@ public class PlayerController2 : MonoBehaviour
 
     public void ReduceSpeedByHalf()
     {
-        _speed *= 0.5f;
+        //_speed *= 0.9f; 
+        //Unwanted behavior, remove this fully later
     }
 
     public void ResetSpeed()
@@ -426,14 +427,14 @@ public class PlayerController2 : MonoBehaviour
     
         public void SudoCrouch()
         {
-            Debug.Log("Crouching!");
+            //Debug.Log("Crouching!");
             _controller.height = _crouchHeight;
             _controller.center = _crouchVector;
         }
 
         private void SudoStand()
         {
-            Debug.Log("Standing!");
+            //Debug.Log("Standing!");
             _controller.height = _originalHeight;
             _controller.center = _originalCenter;
         }
@@ -453,20 +454,18 @@ public class PlayerController2 : MonoBehaviour
                 weaponMount.ToggleAiming(aiming);
             }
 
-            // Optional: Adjust camera FOV or sensitivity when aiming
+            // Adjust camera FOV or sensitivity when aiming
             if (isAiming)
             {
                 _camera.fieldOfView = 40f; // Zoomed in FOV
-                // Store original sensitivity values if you want to restore them later
             }
             else
             {
                 _camera.fieldOfView = 60f; // Normal FOV
-                // Restore original sensitivity values if needed
             }
         }
 
-        private void EquipWeapon(WeaponBase newWeapon)
+        private void EquipWeapon(WeaponBase newWeapon) // Untested
         {
             if (_currentWeapon)
             {

@@ -4,14 +4,20 @@ Shader "Custom/URP/VertexLit Transparent"
     {
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
         _Color ("Main Color", Color) = (1,1,1,1)
+        
+        // Required, unused
+        _Cutoff ("Alpha Cutoff", Range(0,1)) = 0.3
+        _ShadowStrength ("Shadow Strength", Range(0,1)) = 0.8
+        _TranslucencyColor ("Translucency Color", Color) = (0.73,0.85,0.41,1)
+        _TranslucencyViewDependency ("View dependency", Range(0,1)) = 0.7
     }
     
     SubShader
     {
         Tags 
         { 
-            "RenderType"="Transparent" 
-            "Queue"="Transparent" 
+            "RenderType"="TransparentCutout" 
+            "Queue"="AlphaTest" 
             "RenderPipeline"="UniversalPipeline"
             "IgnoreProjector"="True"
         }
@@ -22,9 +28,8 @@ Shader "Custom/URP/VertexLit Transparent"
             Name "ForwardLit"
             Tags { "LightMode"="UniversalForward" }
             
-            Blend SrcAlpha OneMinusSrcAlpha
-            ZWrite Off
-            Cull Back
+            Cull Off
+            ZWrite On
             
             HLSLPROGRAM
             #pragma vertex vert
@@ -32,9 +37,13 @@ Shader "Custom/URP/VertexLit Transparent"
             #pragma multi_compile_fog
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_instancing
+            
+            #define _ALPHATEST_ON 1
             
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -67,6 +76,10 @@ Shader "Custom/URP/VertexLit Transparent"
             CBUFFER_START(UnityPerMaterial)
                 float4 _MainTex_ST;
                 float4 _Color;
+                float _Cutoff;
+                float _ShadowStrength;
+                float4 _TranslucencyColor;
+                float _TranslucencyViewDependency;
             CBUFFER_END
             
             Varyings vert(Attributes input)
@@ -107,21 +120,16 @@ Shader "Custom/URP/VertexLit Transparent"
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 
-                // Sample texture
                 half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
                 half4 color = texColor * _Color;
                 
-                // Get main light
+                clip(color.a - _Cutoff);
+                
                 Light mainLight = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
                 
-                // Calculate lighting (legacy VertexLit style - brighter)
                 half3 normalWS = normalize(input.normalWS);
                 half NdotL = saturate(dot(normalWS, mainLight.direction));
-                
-                // Start with ambient
                 half3 lighting = SampleSH(normalWS);
-                
-                // Add main light contribution
                 lighting += mainLight.color * (mainLight.distanceAttenuation * mainLight.shadowAttenuation) * NdotL;
                 
                 #ifdef _ADDITIONAL_LIGHTS
@@ -139,13 +147,8 @@ Shader "Custom/URP/VertexLit Transparent"
                 lighting += input.vertexLight;
                 #endif
                 
-                // Ensure minimum brightness (legacy VertexLit was always fairly bright)
-                lighting = max(lighting, half3(0.5, 0.5, 0.5));
                 
-                // Apply lighting to color
                 color.rgb *= lighting;
-                
-                // Apply fog
                 color.rgb = MixFog(color.rgb, input.fogFactor);
                 
                 return color;
@@ -193,6 +196,10 @@ Shader "Custom/URP/VertexLit Transparent"
             CBUFFER_START(UnityPerMaterial)
                 float4 _MainTex_ST;
                 float4 _Color;
+                float _Cutoff;
+                float _ShadowStrength;
+                float4 _TranslucencyColor;
+                float _TranslucencyViewDependency;
             CBUFFER_END
 
             float3 _LightDirection;
@@ -220,7 +227,7 @@ Shader "Custom/URP/VertexLit Transparent"
                 
                 half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
                 half alpha = texColor.a * _Color.a;
-                clip(alpha - 0.01);
+                clip(alpha - _Cutoff);
                 
                 return 0;
             }
@@ -264,6 +271,10 @@ Shader "Custom/URP/VertexLit Transparent"
             CBUFFER_START(UnityPerMaterial)
                 float4 _MainTex_ST;
                 float4 _Color;
+                float _Cutoff;
+                float _ShadowStrength;
+                float4 _TranslucencyColor;
+                float _TranslucencyViewDependency;
             CBUFFER_END
 
             Varyings DepthOnlyVertex(Attributes input)
@@ -286,9 +297,82 @@ Shader "Custom/URP/VertexLit Transparent"
                 
                 half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
                 half alpha = texColor.a * _Color.a;
-                clip(alpha - 0.01);
+                clip(alpha - _Cutoff);
                 
                 return 0;
+            }
+            ENDHLSL
+        }
+        
+        Pass
+        {
+            Name "DepthNormals"
+            Tags{"LightMode" = "DepthNormals"}
+
+            ZWrite On
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma vertex DepthNormalsVertex
+            #pragma fragment DepthNormalsFragment
+            #pragma multi_compile_instancing
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS : NORMAL;
+                float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct Varyings
+            {
+                float4 positionCS : SV_POSITION;
+                float2 uv : TEXCOORD0;
+                float3 normalWS : TEXCOORD1;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
+            
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MainTex_ST;
+                float4 _Color;
+                float _Cutoff;
+                float _ShadowStrength;
+                float4 _TranslucencyColor;
+                float _TranslucencyViewDependency;
+            CBUFFER_END
+
+            Varyings DepthNormalsVertex(Attributes input)
+            {
+                Varyings output = (Varyings)0;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+
+                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                output.uv = TRANSFORM_TEX(input.uv, _MainTex);
+                output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+                
+                return output;
+            }
+
+            half4 DepthNormalsFragment(Varyings input) : SV_TARGET
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                
+                half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+                half alpha = texColor.a * _Color.a;
+                clip(alpha - _Cutoff);
+
+                float3 normalWS = normalize(input.normalWS);
+                return half4(normalWS, 0);
             }
             ENDHLSL
         }
